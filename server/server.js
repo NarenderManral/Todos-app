@@ -9,6 +9,8 @@ var bodyParser=require("body-parser");
 
 var app=express();
 
+var port=process.env.PORT || 3000;
+
 app.use(bodyParser.json());
 
 app.post("/todos",(req,res)=>{
@@ -34,44 +36,33 @@ app.get("/todos",(req,res)=>{
 app.get("/todos/:id",(req,res)=>{
     var id=req.params.id;
     if(!ObjectId.isValid(id)){
-        res.status(404).send();
+       return res.status(404).send();
     }
     Todo.findById(id).then((todo)=>{
         if(!todo){
-            res.status(404).send();
+           return  res.status(404).send();
         }
         res.send(todo);
     }).catch((e)=>{
-        res.status(404).send();
+        res.status(400).send();
     });
 });
 
-app.listen(3000,()=>{
-    console.log("Started on port 3000");
+app.delete("/todos/:id",(req,res)=>{
+    var id=req.params.id;
+    if(!ObjectId.isValid(id)){
+        return res.status(404).send();
+    }
+    Todo.findByIdAndRemove(id).then((todo)=>{
+        if(!todo){
+           return res.status(404).send();
+        }
+        res.send(todo);
+    }).catch((e)=>{
+        res.status(400).send();
+    });
 });
-// var user =new User({
-//     userName:"NarenderSingh",
-//     email:"manralnabbu@gmail.com"
-// });
 
-// user.save();
-
-// var newTodo =new Todo({
-//     text:"Cook Dinner"
-// });
-
-// newTodo.save().then((doc)=>{
-//     console.log("New Todo",doc);
-// },(err)=>{
-//     console.log(err);
-// });
-
-// var newTodo =new Todo({
-//     text:"   Go To gym   "
-// });
-
-// newTodo.save().then((doc)=>{
-//     console.log("New Todo",doc);
-// },(err)=>{
-//     console.log(err);
-// });
+app.listen(port,()=>{
+    console.log("Started on port :",port);
+});
